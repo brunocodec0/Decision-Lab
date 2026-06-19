@@ -1,0 +1,14 @@
+{
+  "/(auth)/login/page": "/login",
+  "/(dashboard)/ai-advisor/page": "/ai-advisor",
+  "/(dashboard)/history/page": "/history",
+  "/(dashboard)/page": "/",
+  "/(dashboard)/scenarios/page": "/scenarios",
+  "/(dashboard)/simulator/page": "/simulator",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/ai-advisor/route": "/api/ai-advisor",
+  "/api/decisions/[id]/route": "/api/decisions/[id]",
+  "/api/decisions/route": "/api/decisions",
+  "/api/financial/route": "/api/financial"
+}

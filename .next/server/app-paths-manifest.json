@@ -1,0 +1,14 @@
+{
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/(dashboard)/ai-advisor/page": "app/(dashboard)/ai-advisor/page.js",
+  "/(dashboard)/history/page": "app/(dashboard)/history/page.js",
+  "/(dashboard)/page": "app/(dashboard)/page.js",
+  "/(dashboard)/scenarios/page": "app/(dashboard)/scenarios/page.js",
+  "/(dashboard)/simulator/page": "app/(dashboard)/simulator/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/ai-advisor/route": "app/api/ai-advisor/route.js",
+  "/api/decisions/[id]/route": "app/api/decisions/[id]/route.js",
+  "/api/decisions/route": "app/api/decisions/route.js",
+  "/api/financial/route": "app/api/financial/route.js"
+}

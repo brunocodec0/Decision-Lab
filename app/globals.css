@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand:   #690a96;
+  --accent:  #50d9c9;
+  --bg:      #09090f;
+  --surface: #0f0f18;
+  --card:    #141420;
+  --border:  #1e1e32;
+  --text:    #f1f0f5;
+  --textMid: #94a3b8;
+  --textDim: #475569;
+  --green:   #50d9c9;
+  --yellow:  #f59e0b;
+  --red:     #ef4444;
+  --radius:  10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2e2e50; border-radius: 4px; }
+
+/* Inputs globais */
+input, textarea, select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .15s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--brand);
+}
+select option { background: var(--card); }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.animate-fadein { animation: fadeIn .25s ease forwards; }
