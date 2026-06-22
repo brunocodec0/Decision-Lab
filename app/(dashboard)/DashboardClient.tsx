@@ -76,6 +76,139 @@ function AnnualCostsSection({
   );
 }
 
+// ── Verba FAPERJ ──────────────────────────────────────────────
+const FAPERJ_TOTAL = 58600;
+const FAPERJ_USED  = 2557.32;
+const FAPERJ_BALANCE = FAPERJ_TOTAL - FAPERJ_USED;
+
+// Itens do edital aprovados (categoria · nome · valor)
+const FAPERJ_ITEMS = [
+  // Prospecção
+  { cat:"Prospecção", name:"Google Ads",   value:2000, recurrent:true  },
+  { cat:"Prospecção", name:"LinkedIn Ads", value:1000, recurrent:true  },
+  { cat:"Prospecção", name:"Meta Ads",     value:500,  recurrent:true  },
+  // Site
+  { cat:"Site",       name:"Reformulação do site", value:7200, recurrent:false },
+  // Ferramentas
+  { cat:"Ferramentas", name:"Canva Pro",   value:300,  recurrent:false },
+  { cat:"Ferramentas", name:"Lightroom",   value:1140, recurrent:false },
+  { cat:"Ferramentas", name:"CapCut Pro",  value:234.90, recurrent:false },
+  { cat:"Ferramentas", name:"RD Station",  value:300,  recurrent:true  },
+  // Equipamentos
+  { cat:"Equipamentos", name:"Computador",         value:7000,  recurrent:false },
+  { cat:"Equipamentos", name:"Celular",             value:5000,  recurrent:false },
+  { cat:"Equipamentos", name:"Câmera profissional", value:5000,  recurrent:false },
+  { cat:"Equipamentos", name:"Tripé",               value:100,   recurrent:false },
+  { cat:"Equipamentos", name:"Lente",               value:50,    recurrent:false },
+  { cat:"Equipamentos", name:"Stand",               value:4000,  recurrent:false },
+  // Cursos
+  { cat:"Cursos FGV", name:"Adm. Estratégica de Vendas",  value:997.60, recurrent:false },
+  { cat:"Cursos FGV", name:"Análise de Viabilidade",       value:997.60, recurrent:false },
+  { cat:"Cursos FGV", name:"Excelência em Vendas B2B",     value:997.60, recurrent:false },
+  { cat:"Cursos FGV", name:"Experiência do Cliente",       value:997.60, recurrent:false },
+  { cat:"Cursos FGV", name:"Gestão de Projetos",           value:997.60, recurrent:false },
+  { cat:"Cursos FGV", name:"Gestão de Vendas",             value:997.60, recurrent:false },
+];
+
+const FAPERJ_CATS = Array.from(new Set(FAPERJ_ITEMS.map(i => i.cat)));
+
+function FaperjSection() {
+  const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState("Todos");
+  const pct = Math.round((FAPERJ_USED / FAPERJ_TOTAL) * 100);
+  const filtered = filter === "Todos" ? FAPERJ_ITEMS : FAPERJ_ITEMS.filter(i => i.cat === filter);
+
+  return (
+    <div style={{ gridColumn:"1/-1", marginTop:8 }}>
+      {/* Card resumo FAPERJ */}
+      <div style={{ background:"#0d1f2d", border:"1px solid #50d9c940",
+        borderRadius:10, padding:"16px 18px", marginBottom:open?12:0 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+          <div>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+              <span style={{ fontSize:12 }}>🏛️</span>
+              <p style={{ margin:0, fontSize:12, fontWeight:700, color:C.accent }}>Verba FAPERJ</p>
+              <span style={{ fontSize:10, color:C.textDim, padding:"1px 7px",
+                background:"#50d9c915", border:"1px solid #50d9c930", borderRadius:20 }}>
+                Tecnologia & Inovação
+              </span>
+            </div>
+            <div style={{ display:"flex", gap:24 }}>
+              <div>
+                <p style={{ margin:0, fontSize:10, color:C.textDim }}>Total aprovado</p>
+                <p style={{ margin:0, fontSize:16, fontWeight:700, color:C.text }}>{fmt(FAPERJ_TOTAL)}</p>
+              </div>
+              <div>
+                <p style={{ margin:0, fontSize:10, color:C.textDim }}>Utilizado</p>
+                <p style={{ margin:0, fontSize:16, fontWeight:700, color:C.yellow }}>{fmt(FAPERJ_USED)}</p>
+              </div>
+              <div>
+                <p style={{ margin:0, fontSize:10, color:C.textDim }}>Saldo disponível</p>
+                <p style={{ margin:0, fontSize:16, fontWeight:700, color:C.green }}>{fmt(FAPERJ_BALANCE)}</p>
+              </div>
+            </div>
+            {/* Barra de uso */}
+            <div style={{ marginTop:10 }}>
+              <div style={{ height:4, borderRadius:4, background:C.border, width:280 }}>
+                <div style={{ height:4, borderRadius:4, background:C.accent, width:`${pct}%` }}/>
+              </div>
+              <p style={{ margin:"4px 0 0", fontSize:10, color:C.textDim }}>{pct}% utilizado</p>
+            </div>
+          </div>
+          <button onClick={() => setOpen(o => !o)} style={{
+            background:"transparent", border:`1px solid ${C.border}`, borderRadius:7,
+            padding:"5px 12px", fontSize:11, color:C.textMid, cursor:"pointer",
+          }}>{open ? "Fechar" : "Ver itens do edital"}</button>
+        </div>
+      </div>
+
+      {/* Lista de itens do edital */}
+      {open && (
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:10, padding:16 }}>
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:14 }}>
+            {["Todos", ...FAPERJ_CATS].map(c => (
+              <button key={c} onClick={() => setFilter(c)} style={{
+                background: filter===c ? C.accent+"25" : "transparent",
+                color: filter===c ? C.accent : C.textDim,
+                border: `1px solid ${filter===c ? C.accent+"50" : C.border}`,
+                borderRadius:20, padding:"3px 10px", fontSize:11, cursor:"pointer",
+              }}>{c}</button>
+            ))}
+          </div>
+
+          <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+            {filtered.map((item, i) => (
+              <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+                padding:"8px 12px", background:C.surface, borderRadius:8,
+                border:`1px solid ${C.border}` }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                  <span style={{ fontSize:10, color:C.textDim, padding:"2px 7px",
+                    background:C.border, borderRadius:20 }}>{item.cat}</span>
+                  <span style={{ fontSize:12, color:C.text }}>{item.name}</span>
+                  {item.recurrent && (
+                    <span style={{ fontSize:9, color:C.yellow, padding:"1px 6px",
+                      background:C.yellow+"15", border:`1px solid ${C.yellow}30`, borderRadius:20 }}>
+                      recorrente/mês
+                    </span>
+                  )}
+                </div>
+                <span style={{ fontSize:12, fontWeight:700, color:C.accent, flexShrink:0 }}>
+                  {fmt(item.value)}{item.recurrent ? "/mês" : ""}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <p style={{ margin:"12px 0 0", fontSize:11, color:C.textDim, lineHeight:1.6 }}>
+            ⚠️ Status de aprovação de cada item ainda pendente de confirmação da FAPERJ.
+            Ao criar uma decisão no Simulador, você poderá marcá-la como elegível para esta verba.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Formulário financeiro ──────────────────────────────────────
 function FinancialForm({ onSave }: { onSave: () => void }) {
   const supabase = createClient();
@@ -151,6 +284,9 @@ function FinancialForm({ onSave }: { onSave: () => void }) {
 
         {/* Custos anuais */}
         <AnnualCostsSection costs={annualCosts} setCosts={setAnnualCosts}/>
+
+        {/* Verba FAPERJ */}
+        <FaperjSection/>
       </div>
 
       <button onClick={save} disabled={saving} style={{
@@ -313,9 +449,30 @@ export default function DashboardClient({ financial, history, decisions }: any) 
       <div>
         <SectionTitle label="Quanto podemos investir?" />
         <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
-          <MetricPill label="Disponível no caixa"      value={fmt(cash)}          color={C.accent}/>
-          <MetricPill label="Seguro para investir"     value={fmt(safeToInvest)}  color={safeToInvest>0?C.green:C.red}/>
-          <MetricPill label="Custo fixo mensal"        value={fmt(costs)}         color={C.yellow}/>
+          <MetricPill label="Disponível no caixa"      value={fmt(cash)}             color={C.accent}/>
+          <MetricPill label="Seguro para investir"     value={fmt(safeToInvest)}     color={safeToInvest>0?C.green:C.red}/>
+          <MetricPill label="Custo fixo mensal"        value={fmt(costs)}            color={C.yellow}/>
+        </div>
+
+        {/* Card FAPERJ destacado */}
+        <div style={{ background:"#0d1f2d", border:`1px solid ${C.accent}40`,
+          borderRadius:10, padding:"14px 18px", marginTop:12,
+          display:"flex", alignItems:"center", justifyContent:"space-between", gap:16 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <span style={{ fontSize:20, flexShrink:0 }}>🏛️</span>
+            <div>
+              <p style={{ margin:"0 0 2px", fontSize:12, fontWeight:700, color:C.accent }}>
+                Verba FAPERJ disponível: {fmt(FAPERJ_BALANCE)}
+              </p>
+              <p style={{ margin:0, fontSize:11, color:C.textDim }}>
+                Uso restrito a tecnologia & inovação · {fmt(FAPERJ_USED)} já utilizado de {fmt(FAPERJ_TOTAL)}
+              </p>
+            </div>
+          </div>
+          <div style={{ textAlign:"right", flexShrink:0 }}>
+            <p style={{ margin:"0 0 2px", fontSize:18, fontWeight:700, color:C.green }}>{fmt(FAPERJ_BALANCE)}</p>
+            <p style={{ margin:0, fontSize:10, color:C.textDim }}>saldo livre</p>
+          </div>
         </div>
 
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:10,
