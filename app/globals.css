@@ -30,7 +30,6 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #2e2e50; border-radius: 4px; }
 
-/* Inputs globais */
 input, textarea, select {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -41,11 +40,74 @@ input, textarea, select {
   outline: none;
   transition: border-color .15s;
 }
-input:focus, textarea:focus, select:focus {
-  border-color: var(--brand);
-}
+input:focus, textarea:focus, select:focus { border-color: var(--brand); }
 select option { background: var(--card); }
 
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 .animate-fadein { animation: fadeIn .25s ease forwards; }
+
+/* ── MOBILE ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Espaço pro topbar fixo */
+  main {
+    padding-top: 70px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Grids viram 2 colunas no mobile, 1 se muito pequeno */
+  [style*="gridTemplateColumns"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* KPIs menores */
+  [style*="fontSize:20"], [style*="fontSize: 20"] {
+    font-size: 16px !important;
+  }
+
+  /* Tabelas: scroll horizontal */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Cards de decisão: empilha verticalmente */
+  [style*="display:\"flex\""][style*="gap:16"],
+  [style*="display:\"flex\""][style*="gap:18"],
+  [style*="display:\"flex\""][style*="gap:20"] {
+    flex-wrap: wrap;
+  }
+
+  /* Botões de aprovar/rejeitar ficam na linha */
+  [style*="flexDirection:\"column\""][style*="gap:6"] {
+    flex-direction: row !important;
+  }
+
+  /* Gráficos não transbordam */
+  .recharts-wrapper {
+    max-width: 100% !important;
+  }
+
+  /* Formulários: 1 coluna só */
+  [style*="gridTemplateColumns:\"1fr 1fr\""],
+  [style*="gridTemplateColumns: \"1fr 1fr\""] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Chat de IA: mensagens não transbordam */
+  [style*="maxWidth:\"78%\""] {
+    max-width: 90% !important;
+  }
+
+  /* Títulos menores */
+  h1 { font-size: 17px !important; }
+}
+
+@media (max-width: 480px) {
+  [style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+}
