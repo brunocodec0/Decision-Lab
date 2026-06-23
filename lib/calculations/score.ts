@@ -10,6 +10,7 @@ export interface DecisionInput {
   recurringCost: number;
   expectedReturn: number;
   returnStartMonth: number;
+  returnType?: "financial" | "indirect" | "infrastructure"; // #9
 }
 
 export interface ScoreResult {
@@ -26,38 +27,74 @@ export function calcScore(fin: FinancialContext, dec: DecisionInput): ScoreResul
   const pc  = fin.monthlyCosts + dec.recurringCost;
   const pp  = (fin.monthlyRevenue + dec.expectedReturn) - pc;
   const ty  = dec.oneTimeCost + dec.recurringCost * 12;
+
+  // #9 — Se retorno é indireto/infra, não penaliza ROI/impacto por ter retorno 0
+  const isIndirect = dec.returnType === "indirect" || dec.returnType === "infrastructure";
+
   const roi = dec.oneTimeCost > 0
     ? ((dec.expectedReturn * 12 - dec.recurringCost * 12 - dec.oneTimeCost) / dec.oneTimeCost) * 100
     : dec.expectedReturn > dec.recurringCost ? 100 : 0;
-  const run = pc > 0 ? (fin.operationalReserve - dec.oneTimeCost) / pc : 99;
+
   const rr  = fin.cashBalance > 0 ? ty / fin.cashBalance : 1;
   const bev = dec.expectedReturn > dec.recurringCost
     ? dec.oneTimeCost / (dec.expectedReturn - dec.recurringCost) : Infinity;
 
-  let fh = 0; const r = mp / (dec.recurringCost || 1);
+  // Saúde financeira (0-25)
+  let fh = 0;
+  const r = mp / (dec.recurringCost || 1);
   if (r >= 3) fh=25; else if (r >= 2) fh=20; else if (r >= 1) fh=15; else if (r >= .5) fh=8; else fh=3;
 
+  // Reserva (0-20) — usa caixa como proxy já que não há reserva separada
+  const cashCoverage = fin.cashBalance / (pc || 1);
   let rs = 0;
-  if (run >= 6) rs=20; else if (run >= 4) rs=15; else if (run >= 3) rs=10; else if (run >= 2) rs=5; else if (run >= 1) rs=2;
+  if (cashCoverage >= 6) rs=20; else if (cashCoverage >= 4) rs=15;
+  else if (cashCoverage >= 3) rs=10; else if (cashCoverage >= 2) rs=5; else if (cashCoverage >= 1) rs=2;
 
+  // Risco (0-20)
   let rk = 0;
-  if (rr <= .1) rk=20; else if (rr <= .2) rk=16; else if (rr <= .35) rk=12; else if (rr <= .5) rk=7; else if (rr <= .75) rk=3;
+  if (rr <= .1) rk=20; else if (rr <= .2) rk=16; else if (rr <= .35) rk=12;
+  else if (rr <= .5) rk=7; else if (rr <= .75) rk=3;
 
+  // Impacto (0-15)
   let im = 0;
-  if (pp > mp) { const d=((pp-mp)/Math.abs(mp||1))*100; if(d>=30)im=15; else if(d>=15)im=12; else if(d>=5)im=8; else im=4; }
+  if (isIndirect) {
+    // Retorno indireto/infra: pontua pela sustentabilidade do custo, não pelo retorno
+    const affordability = mp / (dec.recurringCost || 1);
+    if (affordability >= 2) im=12; else if (affordability >= 1) im=8;
+    else if (affordability >= 0) im=5; else im=2;
+  } else {
+    if (pp > mp) {
+      const d=((pp-mp)/Math.abs(mp||1))*100;
+      if(d>=30)im=15; else if(d>=15)im=12; else if(d>=5)im=8; else im=4;
+    }
+  }
 
+  // ROI (0-15)
   let ro = 0;
-  if (roi>=200) ro=15; else if(roi>=100) ro=12; else if(roi>=50) ro=9; else if(roi>=20) ro=6; else if(roi>=0) ro=3;
+  if (isIndirect) {
+    // Indireto: pontua pela necessidade estratégica (custo baixo = melhor)
+    const monthlyCostRatio = dec.recurringCost / (fin.monthlyRevenue || fin.monthlyCosts || 1);
+    if (monthlyCostRatio <= 0.05) ro=15; else if (monthlyCostRatio <= 0.1) ro=12;
+    else if (monthlyCostRatio <= 0.2) ro=9; else if (monthlyCostRatio <= 0.35) ro=6; else ro=3;
+  } else {
+    if (roi>=200) ro=15; else if(roi>=100) ro=12; else if(roi>=50) ro=9;
+    else if(roi>=20) ro=6; else if(roi>=0) ro=3;
+  }
 
+  // Break-even (0-5)
   let bv = 0;
-  if (dec.oneTimeCost===0 && dec.expectedReturn>dec.recurringCost) bv=5;
-  else if(bev<=3) bv=5; else if(bev<=6) bv=4; else if(bev<=12) bv=3; else if(bev<=24) bv=1;
+  if (isIndirect) {
+    bv = 4; // Indireto não tem break-even mensurável, mas é válido
+  } else if (dec.oneTimeCost===0 && dec.expectedReturn>dec.recurringCost) {
+    bv=5;
+  } else if(bev<=3) bv=5; else if(bev<=6) bv=4; else if(bev<=12) bv=3; else if(bev<=24) bv=1;
 
   const total = Math.min(100, fh+rs+rk+im+ro+bv);
+
   return {
     total, fh, res: rs, rk, im, ro, bv,
     roi: Math.round(roi * 10) / 10,
-    breakevenMonths: isFinite(bev) ? Math.ceil(bev) : null,
+    breakevenMonths: isFinite(bev) && !isIndirect ? Math.ceil(bev) : null,
     label: total>=70 ? "Recomendado" : total>=40 ? "Atenção" : "Não Recomendado",
     color: total>=70 ? "#50d9c9" : total>=40 ? "#f59e0b" : "#ef4444",
   };
