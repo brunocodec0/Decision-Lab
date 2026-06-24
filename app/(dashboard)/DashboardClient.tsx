@@ -315,7 +315,20 @@ export default function DashboardClient({ financial, history, decisions }: any) 
   const costs   = financial?.monthly_costs   ?? 225;
   const profit  = revenue - costs;
   const runway  = costs>0 ? cash/costs : 0;
-  const faperjBalance = FAPERJ_TOTAL - FAPERJ_USED - faperjItems.filter(i=>!i.active).reduce((a,i)=>a+i.value,0);
+  const [faperjBalance, setFaperjBalance] = useState(FAPERJ_TOTAL - FAPERJ_USED);
+
+useEffect(() => {
+  const sb = createClient();
+  sb.auth.getUser().then(async ({ data: { user } }) => {
+    if (!user) return;
+    const { data } = await sb.from("faperj_transactions").select("amount, type");
+    if (data) {
+      const total = data.reduce((acc: number, t: any) =>
+        t.type === "debit" ? acc - t.amount : acc + t.amount, FAPERJ_TOTAL);
+      setFaperjBalance(Math.max(0, total));
+    }
+  });
+}, []);
   const safeToInvest  = Math.max(0, cash - costs*3);
 
   const approved  = decisions.filter((d:any)=>d.status==="approved");
